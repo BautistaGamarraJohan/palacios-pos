@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0d2b0d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Palacios">
+<link rel="manifest" href="/manifest.json">
+<title>Juguería Palacios</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Nunito',sans-serif;background:#f0f2f5;color:#1c1c1e;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+/* ── TOPBAR ── */
+.topbar{background:#0d2b0d;height:54px;display:flex;align-items:center;padding:0 14px;gap:8px;flex-shrink:0;box-shadow:0 2px 12px rgba(0,0,0,0.35);}
+.brand{font-size:1.15rem;font-weight:900;color:#f5c518;white-space:nowrap;margin-right:6px;}
+.tnav{background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.6);padding:6px 14px;border-radius:7px;font-family:'Nunito',sans-serif;font-size:0.8rem;font-weight:800;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.tnav.active{background:#f4720b;color:#fff;}
+.tnav:hover:not(.active){background:rgba(255,255,255,0.15);}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.topbar-time{color:rgba(255,255,255,0.4);font-size:0.78rem;font-weight:700;}
+.total-hoy-badge{background:rgba(245,197,24,0.15);border:1px solid rgba(245,197,24,0.3);color:#f5c518;border-radius:8px;padding:4px 10px;font-size:0.75rem;font-weight:800;}
+
+/* ── MAIN ── */
+.main{display:flex;flex:1;overflow:hidden;}
+
+/* ════════════════════════════
+   VISTA MESAS
+════════════════════════════ */
+#vMesas{flex:1;overflow-y:auto;padding:16px;flex-direction:column;gap:14px;display:none;}
+.v-title{font-size:1.15rem;font-weight:900;color:#0d2b0d;}
+.ambientes-tabs{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.amb-tab{background:#fff;border:2px solid #e0e0e0;border-radius:8px;padding:6px 16px;font-family:'Nunito',sans-serif;font-size:0.8rem;font-weight:800;cursor:pointer;color:#666;transition:all 0.15s;}
+.amb-tab.active{background:#0d2b0d;color:#f5c518;border-color:#0d2b0d;}
+.btn-nuevo-amb{background:transparent;border:2px dashed #ccc;border-radius:8px;padding:6px 14px;font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;color:#aaa;transition:all 0.15s;}
+.btn-nuevo-amb:hover{border-color:#1a5c1a;color:#1a5c1a;}
+.leyenda{display:flex;gap:14px;flex-wrap:wrap;}
+.ley{display:flex;align-items:center;gap:5px;font-size:0.74rem;font-weight:700;color:#888;}
+.ley-dot{width:10px;height:10px;border-radius:3px;}
+.mesas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:10px;}
+.mesa-card{background:#fff;border-radius:12px;padding:14px 10px 12px;text-align:center;cursor:pointer;border:2.5px solid #d4edd4;transition:all 0.18s;box-shadow:0 2px 8px rgba(0,0,0,0.06);position:relative;}
+.mesa-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.12);}
+.mesa-card:active{transform:scale(0.96);}
+.mesa-card.ocupada{border-color:#f4720b;background:#fff8f2;}
+.mesa-card.pendiente{border-color:#2196F3;background:#f0f7ff;}
+.mesa-icon{font-size:1.8rem;margin-bottom:5px;}
+.mesa-num{font-size:0.9rem;font-weight:900;color:#0d2b0d;}
+.mesa-tag{display:inline-block;margin-top:4px;font-size:0.65rem;font-weight:800;padding:2px 8px;border-radius:20px;}
+.mesa-card:not(.ocupada):not(.pendiente) .mesa-tag{background:#e8f5e9;color:#2e7d32;}
+.mesa-card.ocupada .mesa-tag{background:#fff3e0;color:#f4720b;}
+.mesa-card.pendiente .mesa-tag{background:#e3f2fd;color:#1565c0;}
+.mesa-total{font-size:0.7rem;font-weight:900;color:#1a5c1a;margin-top:3px;}
+.btn-para-llevar{background:linear-gradient(135deg,#1a5c1a,#2d7a2d);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:900;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(26,92,26,0.25);}
+
+/* ════════════════════════════
+   VISTA POS
+════════════════════════════ */
+#vPOS{flex:1;overflow:hidden;flex-direction:column;display:none;}
+.pos-wrap{display:flex;flex:1;overflow:hidden;height:100%;}
+.menu-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.pos-header{background:#fff;padding:8px 12px;border-bottom:1px solid #eee;flex-shrink:0;display:flex;align-items:center;gap:10px;}
+.pos-mesa-badge{background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:8px;padding:4px 12px;font-size:0.78rem;font-weight:900;color:#1a5c1a;}
+.pos-mesa-badge.para-llevar{background:#e3f2fd;border-color:#90caf9;color:#1565c0;}
+.btn-volver{background:#f5f5f5;border:none;border-radius:8px;padding:6px 12px;font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:800;cursor:pointer;color:#555;display:flex;align-items:center;gap:4px;}
+.cats-bar{background:#fff;padding:8px 12px;display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;border-bottom:1px solid #eee;}
+.cats-bar::-webkit-scrollbar{display:none;}
+.cat-btn{flex-shrink:0;background:#f4f4f4;border:2px solid transparent;border-radius:50px;padding:6px 14px;font-size:0.79rem;font-weight:800;cursor:pointer;color:#666;font-family:'Nunito',sans-serif;transition:all 0.14s;white-space:nowrap;}
+.cat-btn.active{background:#1a5c1a;color:#fff;}
+.cat-btn:hover:not(.active){border-color:#1a5c1a;color:#1a5c1a;}
+.search-bar{padding:7px 12px;background:#fff;border-bottom:1px solid #eee;flex-shrink:0;}
+.search-inp{width:100%;padding:7px 12px 7px 32px;border:1.5px solid #e0e0e0;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.83rem;background:#f8f8f8 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 9px center;}
+.search-inp:focus{outline:none;border-color:#1a5c1a;}
+.prod-scroll{flex:1;overflow-y:auto;padding:10px;}
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;}
+.pcard{background:#fff;border-radius:11px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all 0.16s;box-shadow:0 2px 8px rgba(0,0,0,0.07);}
+.pcard:hover{border-color:#1a5c1a;transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.12);}
+.pcard:active{transform:scale(0.97);}
+.pcard-img{width:100%;height:100px;object-fit:cover;display:block;background:#f0f4f0;}
+.pcard-emoji{width:100%;height:100px;display:flex;align-items:center;justify-content:center;font-size:2.8rem;background:linear-gradient(135deg,#e8f5e9,#f1f8e9);}
+.pcard-body{padding:7px 9px 9px;}
+.pcard-name{font-size:0.78rem;font-weight:800;color:#1c1c1e;line-height:1.3;margin-bottom:4px;}
+.pcard-price{display:inline-block;background:#1a5c1a;color:#fff;border-radius:5px;padding:2px 7px;font-size:0.76rem;font-weight:900;}
+
+/* Panel pedido */
+.pedido-panel{width:295px;background:#fff;display:flex;flex-direction:column;border-left:1px solid #e8e8e8;flex-shrink:0;}
+.ped-top{padding:9px 12px;border-bottom:1px solid #eee;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
+.ped-mesa-lbl{font-size:0.72rem;color:#aaa;font-weight:700;}
+.ped-mesa-val{font-size:0.9rem;font-weight:900;color:#0d2b0d;}
+.btn-cam{background:#f0f0f0;border:none;border-radius:6px;padding:4px 8px;font-size:0.7rem;font-weight:800;color:#666;cursor:pointer;font-family:'Nunito',sans-serif;}
+.ped-lista{flex:1;overflow-y:auto;padding:7px;}
+.ped-empty{text-align:center;padding:32px 14px;color:#ccc;}
+.ped-empty .ei{font-size:3rem;margin-bottom:7px;}
+.ped-item{display:flex;align-items:flex-start;gap:7px;padding:7px 0;border-bottom:1px solid #f5f5f5;}
+.pi-em{font-size:1.3rem;background:#f5f5f5;border-radius:7px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pi-inf{flex:1;min-width:0;}
+.pi-nom{font-size:0.77rem;font-weight:800;line-height:1.3;}
+.pi-det{font-size:0.66rem;color:#aaa;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pi-r{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;}
+.pi-pre{font-size:0.82rem;font-weight:900;color:#1a5c1a;}
+.pi-qty{display:flex;align-items:center;gap:4px;}
+.qb{width:18px;height:18px;border-radius:50%;border:none;font-size:0.8rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.qb.m{background:#fee2e2;color:#e53935;}
+.qb.p{background:#dcfce7;color:#1a5c1a;}
+.qn{font-size:0.78rem;font-weight:900;min-width:14px;text-align:center;}
+.ped-foot{padding:9px 12px;border-top:2px solid #eee;flex-shrink:0;}
+.total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+.total-lbl{font-size:0.82rem;color:#888;font-weight:700;}
+.total-val{font-size:1.35rem;font-weight:900;color:#0d2b0d;}
+.pago-row{display:flex;gap:4px;margin-bottom:7px;}
+.pago-op{flex:1;background:#f5f5f5;border:2px solid transparent;border-radius:6px;padding:4px 2px;text-align:center;cursor:pointer;font-size:0.65rem;font-weight:800;color:#888;transition:all 0.14s;}
+.pago-op.on{background:#e8f5e9;border-color:#1a5c1a;color:#1a5c1a;}
+.btns-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:5px;}
+.btn-accion{background:#f5f5f5;border:none;border-radius:8px;padding:8px;font-family:'Nunito',sans-serif;font-size:0.73rem;font-weight:800;color:#555;cursor:pointer;transition:all 0.14s;text-align:center;}
+.btn-accion:hover{background:#e8f5e9;color:#1a5c1a;}
+.btn-cob{width:100%;background:linear-gradient(135deg,#1a5c1a,#2d7a2d);border:none;border-radius:9px;padding:11px;font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:900;color:#fff;cursor:pointer;box-shadow:0 4px 12px rgba(26,92,26,0.28);transition:all 0.15s;}
+.btn-cob:disabled{background:#ddd;box-shadow:none;cursor:not-allowed;color:#aaa;}
+
+/* ════════════════════════════
+   VISTA COMANDAS
+════════════════════════════ */
+#vComandas{flex:1;overflow-y:auto;padding:14px;display:none;flex-direction:column;}
+.comandas-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;flex:1;min-height:0;}
+@media(max-width:800px){.comandas-cols{grid-template-columns:1fr;}}
+.col-comanda{background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
+.col-header{padding:10px 14px;font-size:0.85rem;font-weight:900;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.col-header.prep{background:#FFF3E0;color:#E65100;}
+.col-header.listo{background:#E8F5E9;color:#2E7D32;}
+.col-header.entregado{background:#E3F2FD;color:#1565C0;}
+.col-count{width:22px;height:22px;border-radius:50%;font-size:0.72rem;font-weight:900;display:flex;align-items:center;justify-content:center;}
+.col-header.prep .col-count{background:#FF9800;color:#fff;}
+.col-header.listo .col-count{background:#4CAF50;color:#fff;}
+.col-header.entregado .col-count{background:#2196F3;color:#fff;}
+.col-body{flex:1;overflow-y:auto;padding:8px;}
+.comanda-card{background:#fff;border-radius:10px;padding:10px;margin-bottom:8px;border:1.5px solid #eee;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.cc-mesa{font-size:0.7rem;font-weight:900;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.cc-prod{font-size:0.82rem;font-weight:800;color:#1c1c1e;margin-bottom:2px;}
+.cc-det{font-size:0.7rem;color:#aaa;}
+.cc-qty{display:inline-block;background:#0d2b0d;color:#f5c518;border-radius:5px;padding:1px 7px;font-size:0.72rem;font-weight:900;margin-right:5px;}
+.cc-btns{display:flex;gap:5px;margin-top:8px;}
+.cc-btn{flex:1;border:none;border-radius:7px;padding:6px;font-family:'Nunito',sans-serif;font-size:0.72rem;font-weight:800;cursor:pointer;transition:all 0.14s;}
+.cc-btn.listo{background:#E8F5E9;color:#2E7D32;}
+.cc-btn.entregar{background:#E3F2FD;color:#1565C0;}
+.cc-btn.listo:hover{background:#C8E6C9;}
+.cc-btn.entregar:hover{background:#BBDEFB;}
+
+/* ════════════════════════════
+   VISTA REPORTES
+════════════════════════════ */
+#vReporte{flex:1;overflow-y:auto;padding:16px;display:none;flex-direction:column;}
+.fecha-card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,0.07);max-width:480px;}
+.fecha-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.flabel{font-size:0.7rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.finput{width:100%;padding:8px 10px;border:2px solid #e8e8e8;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.85rem;color:#1c1c1e;background:#f8f8f8;}
+.finput:focus{outline:none;border-color:#1a5c1a;}
+.atajos{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.atajo{background:#f5f5f5;border:2px solid #e8e8e8;border-radius:7px;padding:5px 11px;font-family:'Nunito',sans-serif;font-size:0.76rem;font-weight:800;cursor:pointer;color:#666;transition:all 0.14s;}
+.atajo.on{background:#1a5c1a;color:#fff;border-color:#1a5c1a;}
+.btn-dl{width:100%;padding:12px;background:linear-gradient(135deg,#1a5c1a,#2d7a2d);color:#fff;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:0.88rem;font-weight:900;cursor:pointer;}
+
+/* ════════════════════════════
+   SHEET PERSONALIZACIÓN
+════════════════════════════ */
+.sh-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:flex-end;backdrop-filter:blur(2px);}
+.sh-overlay.open{display:flex;animation:fdin 0.18s;}
+@keyframes fdin{from{opacity:0}to{opacity:1}}
+.sheet{background:#fff;border-radius:22px 22px 0 0;padding:0 18px 28px;width:100%;max-height:88vh;overflow-y:auto;animation:sup 0.27s cubic-bezier(.34,1.1,.64,1);scrollbar-width:none;}
+.sheet::-webkit-scrollbar{display:none;}
+@keyframes sup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sh-handle{width:34px;height:4px;background:#ddd;border-radius:2px;margin:10px auto 14px;}
+.sh-head{display:flex;gap:12px;align-items:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f0f0f0;}
+.sh-imgw{width:58px;height:58px;border-radius:10px;overflow:hidden;flex-shrink:0;background:#f0f4f0;display:flex;align-items:center;justify-content:center;font-size:2rem;}
+.sh-imgw img{width:100%;height:100%;object-fit:cover;}
+.sh-name{font-size:0.98rem;font-weight:900;color:#0d2b0d;line-height:1.3;}
+.sh-cat{font-size:0.7rem;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+.sh-price{font-size:1.05rem;font-weight:900;color:#f4720b;margin-top:3px;}
+.opt-sec{margin-bottom:13px;}
+.opt-lbl{font-size:0.68rem;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{padding:6px 12px;border-radius:50px;border:2px solid #e8e8e8;font-size:0.78rem;font-weight:700;cursor:pointer;background:#fff;color:#666;font-family:'Nunito',sans-serif;transition:all 0.13s;}
+.chip.on{background:#0d2b0d;color:#f5c518;border-color:#0d2b0d;}
+.btn-add{width:100%;padding:13px;background:linear-gradient(135deg,#1a5c1a,#2d7a2d);color:#fff;border:none;border-radius:11px;font-size:0.88rem;font-weight:900;font-family:'Nunito',sans-serif;cursor:pointer;margin-top:8px;}
+
+/* ════════════════════════════
+   MODAL DIVISIÓN DE CUENTA
+════════════════════════════ */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal-box{background:#fff;border-radius:18px;padding:0;width:100%;max-width:500px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;}
+.modal-head{background:#0d2b0d;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.modal-head h3{color:#f5c518;font-size:1rem;font-weight:900;}
+.modal-close{background:rgba(255,255,255,0.1);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;}
+.modal-body{padding:16px;overflow-y:auto;flex:1;}
+.div-personas{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+.persona-row{background:#f8f8f8;border-radius:10px;padding:10px 12px;}
+.persona-name{font-size:0.8rem;font-weight:800;color:#0d2b0d;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+.persona-items{display:flex;flex-direction:column;gap:4px;}
+.persona-item-row{display:flex;justify-content:space-between;align-items:center;font-size:0.75rem;}
+.persona-total{font-size:0.85rem;font-weight:900;color:#1a5c1a;margin-top:6px;text-align:right;}
+.btn-add-persona{background:#e8f5e9;border:2px dashed #a5d6a7;border-radius:8px;padding:8px;width:100%;font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:800;color:#1a5c1a;cursor:pointer;}
+.modal-foot{padding:12px 16px;border-top:1px solid #eee;flex-shrink:0;}
+.items-asignables{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;max-height:150px;overflow-y:auto;}
+.item-asign{display:flex;align-items:center;justify-content:space-between;background:#f5f5f5;border-radius:8px;padding:7px 10px;font-size:0.78rem;font-weight:700;}
+.btn-asign{background:#0d2b0d;color:#f5c518;border:none;border-radius:6px;padding:3px 9px;font-family:'Nunito',sans-serif;font-size:0.72rem;font-weight:800;cursor:pointer;}
+
+/* MODAL SIMPLE */
+.smodal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:600;align-items:center;justify-content:center;padding:16px;}
+.smodal-bg.open{display:flex;}
+.smodal{background:#fff;border-radius:16px;padding:22px;width:100%;max-width:340px;}
+.smodal h3{font-size:1rem;font-weight:900;color:#0d2b0d;margin-bottom:14px;}
+.smodal input,.smodal select{width:100%;padding:9px 11px;border:2px solid #e8e8e8;border-radius:9px;font-family:'Nunito',sans-serif;font-size:0.88rem;margin-bottom:12px;}
+.smodal input:focus,.smodal select:focus{outline:none;border-color:#1a5c1a;}
+.smodal-btns{display:flex;gap:8px;}
+.smodal-btns button{flex:1;padding:10px;border-radius:8px;border:none;font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:800;cursor:pointer;}
+.smodal-btns .ok{background:#1a5c1a;color:#fff;}
+.smodal-btns .cancel{background:#f5f5f5;color:#666;}
+
+/* MODAL MESA (cambiar) */
+.mesa-modal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:14px;}
+.mmesa{background:#f5f5f5;border:2px solid #e8f5e9;border-radius:9px;padding:9px 0;font-family:'Nunito',sans-serif;font-size:0.82rem;font-weight:800;cursor:pointer;transition:all 0.13s;}
+.mmesa.ocupada{background:#fff3e0;border-color:#f4720b;color:#f4720b;}
+.mmesa:hover:not(.ocupada){background:#1a5c1a;color:#fff;border-color:#1a5c1a;}
+
+/* IMPRESIÓN */
+@media print {
+  body > *:not(#printArea){display:none !important;}
+  #printArea{display:block !important;font-family:monospace;font-size:11px;width:300px;margin:0 auto;}
+  #printArea .print-line{border-top:1px dashed #000;margin:6px 0;}
+}
+#printArea{display:none;}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(10px);background:#0d2b0d;color:#fff;border-radius:50px;padding:9px 20px;font-weight:700;font-size:0.83rem;white-space:nowrap;z-index:999;opacity:0;transition:all 0.26s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.ok{background:#2d7a2d;}
+.toast.err{background:#c62828;}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">🍊 Palacios</div>
+  <button class="tnav active" onclick="irVista('mesas')">🍽️ Mesas</button>
+  <button class="tnav" onclick="irVista('pos')">🧾 POS</button>
+  <button class="tnav" onclick="irVista('comandas')">👨‍🍳 Comandas</button>
+  <button class="tnav" onclick="irVista('reporte')">📊 Reportes</button>
+  <div class="topbar-right">
+    <div class="total-hoy-badge" id="totalHoy">S/ 0.00 hoy</div>
+    <div class="topbar-time" id="reloj">--:--</div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ════ MESAS ════ -->
+<div id="vMesas" style="display:flex;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+    <div class="v-title">Mesas del local</div>
+    <button class="btn-para-llevar" onclick="iniciarParaLlevar()">🥤 Para llevar</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+    <div class="ambientes-tabs" id="ambientesTabs"></div>
+    <button class="btn-nuevo-amb" onclick="abrirNuevoAmbiente()">+ Ambiente</button>
+  </div>
+  <div class="leyenda" style="margin-bottom:10px;">
+    <div class="ley"><div class="ley-dot" style="background:#c8e6c9"></div>Libre</div>
+    <div class="ley"><div class="ley-dot" style="background:#f4720b"></div>Ocupada</div>
+    <div class="ley"><div class="ley-dot" style="background:#2196F3"></div>Con pedido</div>
+  </div>
+  <div class="mesas-grid" id="mesasGrid"></div>
+</div>
+
+<!-- ════ POS ════ -->
+<div id="vPOS" style="display:none;flex:1;overflow:hidden;">
+  <div class="pos-wrap">
+    <div class="menu-panel">
+      <div class="pos-header">
+        <button class="btn-volver" onclick="irVista('mesas')">← Volver</button>
+        <div class="pos-mesa-badge" id="posMesaBadge">Mesa —</div>
+        <div style="margin-left:auto;font-size:0.75rem;color:#aaa;font-weight:700" id="posAmbienteBadge"></div>
+      </div>
+      <div class="cats-bar" id="catsBar"></div>
+      <div class="search-bar">
+        <input class="search-inp" type="text" placeholder="Buscar producto..." id="searchInp" oninput="filtrar()">
+      </div>
+      <div class="prod-scroll">
+        <div class="prod-grid" id="prodGrid"></div>
+      </div>
+    </div>
+    <div class="pedido-panel">
+      <div class="ped-top">
+        <div>
+          <div class="ped-mesa-lbl">Mesa activa</div>
+          <div class="ped-mesa-val" id="mesaLabel">—</div>
+        </div>
+        <button class="btn-cam" onclick="abrirModalMesa()">Cambiar</button>
+      </div>
+      <div class="ped-lista" id="pedLista">
+        <div class="ped-empty"><div class="ei">🥤</div><p>Selecciona productos</p></div>
+      </div>
+      <div class="ped-foot">
+        <div class="total-row">
+          <span class="total-lbl">TOTAL</span>
+          <span class="total-val" id="totalVal">S/ 0.00</span>
+        </div>
+        <div class="pago-row">
+          <div class="pago-op on" data-v="efectivo" onclick="selPago(this)">💵 Efectivo</div>
+          <div class="pago-op" data-v="yape" onclick="selPago(this)">📱 Yape</div>
+          <div class="pago-op" data-v="tarjeta" onclick="selPago(this)">💳 Tarjeta</div>
+          <div class="pago-op" data-v="plin" onclick="selPago(this)">📲 Plin</div>
+        </div>
+        <div class="btns-grid">
+          <button class="btn-accion" onclick="imprimirPreCuenta()">🖨️ Pre-cuenta</button>
+          <button class="btn-accion" onclick="abrirDivision()">👥 Dividir</button>
+          <button class="btn-accion" onclick="enviarComanda()">👨‍🍳 Comanda</button>
+          <button class="btn-accion" onclick="limpiarPedido()">🗑️ Limpiar</button>
+        </div>
+        <button class="btn-cob" id="btnCob" onclick="cobrar()" disabled>✅ Finalizar venta</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ COMANDAS ════ -->
+<div id="vComandas">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <div class="v-title">👨‍🍳 Comandas de cocina</div>
+    <button onclick="cargarComandas()" style="background:#e8f5e9;border:none;border-radius:8px;padding:6px 14px;font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:800;color:#1a5c1a;cursor:pointer;">↻ Actualizar</button>
+  </div>
+  <div class="comandas-cols">
+    <div class="col-comanda">
+      <div class="col-header prep">🔴 Preparando <span class="col-count" id="cnt-prep">0</span></div>
+      <div class="col-body" id="col-prep"></div>
+    </div>
+    <div class="col-comanda">
+      <div class="col-header listo">🟢 Listo <span class="col-count" id="cnt-listo">0</span></div>
+      <div class="col-body" id="col-listo"></div>
+    </div>
+    <div class="col-comanda">
+      <div class="col-header entregado">🔵 Entregado <span class="col-count" id="cnt-entregado">0</span></div>
+      <div class="col-body" id="col-entregado"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ REPORTES ════ -->
+<div id="vReporte">
+  <div class="v-title" style="margin-bottom:4px;">📊 Reportes</div>
+  <p style="color:#aaa;font-size:0.8rem;margin-bottom:14px">Elige el período y exporta en Excel</p>
+  <div class="fecha-card">
+    <div class="fecha-row">
+      <div><div class="flabel">Desde</div><input type="date" class="finput" id="fIni"></div>
+      <div><div class="flabel">Hasta</div><input type="date" class="finput" id="fFin"></div>
+    </div>
+    <div class="atajos">
+      <button class="atajo on" id="at-hoy" onclick="setAtajo('hoy')">Hoy</button>
+      <button class="atajo" id="at-ayer" onclick="setAtajo('ayer')">Ayer</button>
+      <button class="atajo" id="at-semana" onclick="setAtajo('semana')">Esta semana</button>
+      <button class="atajo" id="at-mes" onclick="setAtajo('mes')">Este mes</button>
+    </div>
+    <button class="btn-dl" onclick="descargarReporte()">📥 Descargar Excel</button>
+  </div>
+</div>
+
+</div><!-- fin main -->
+
+<!-- SHEET PERSONALIZACIÓN -->
+<div class="sh-overlay" id="shOverlay" onclick="cerrarSheet(event)">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-head">
+      <div class="sh-imgw" id="shImg">🍹</div>
+      <div>
+        <div class="sh-name" id="shName">-</div>
+        <div class="sh-cat" id="shCat">-</div>
+        <div class="sh-price" id="shPrice">S/ 0.00</div>
+      </div>
+    </div>
+    <div class="opt-sec" id="oTam"><div class="opt-lbl">Tamaño</div><div class="chips" id="cTam"></div></div>
+    <div class="opt-sec" id="oTemp"><div class="opt-lbl">Temperatura</div><div class="chips">
+      <span class="chip" data-g="temp" data-v="helado" onclick="tChip(this)">🧊 Helado</span>
+      <span class="chip on" data-g="temp" data-v="al tiempo" onclick="tChip(this)">🌡️ Al tiempo</span>
+      <span class="chip" data-g="temp" data-v="sin helar" onclick="tChip(this)">☀️ Sin helar</span>
+    </div></div>
+    <div class="opt-sec" id="oPulpa"><div class="opt-lbl">Pulpa</div><div class="chips">
+      <span class="chip on" data-g="pulpa" data-v="con pulpa" onclick="tChip(this)">Con pulpa</span>
+      <span class="chip" data-g="pulpa" data-v="sin pulpa" onclick="tChip(this)">Sin pulpa</span>
+    </div></div>
+    <div class="opt-sec" id="oAzucar"><div class="opt-lbl">Azúcar</div><div class="chips">
+      <span class="chip on" data-g="azucar" data-v="normal" onclick="tChip(this)">Normal</span>
+      <span class="chip" data-g="azucar" data-v="poca azúcar" onclick="tChip(this)">Poca</span>
+      <span class="chip" data-g="azucar" data-v="sin azúcar" onclick="tChip(this)">Sin azúcar</span>
+    </div></div>
+    <div class="opt-sec" id="oEspuma"><div class="opt-lbl">Espuma</div><div class="chips">
+      <span class="chip on" data-g="espuma" data-v="normal" onclick="tChip(this)">Normal</span>
+      <span class="chip" data-g="espuma" data-v="poca espuma" onclick="tChip(this)">Poca</span>
+      <span class="chip" data-g="espuma" data-v="sin espuma" onclick="tChip(this)">Sin espuma</span>
+    </div></div>
+    <div class="opt-sec" id="oCremas" style="display:none"><div class="opt-lbl">Cremas</div><div class="chips">
+      <span class="chip" data-g="mayo" data-v="mayonesa" onclick="tChip(this)">🟡 Mayonesa</span>
+      <span class="chip" data-g="ketch" data-v="kétchup" onclick="tChip(this)">🔴 Kétchup</span>
+      <span class="chip" data-g="most" data-v="mostaza" onclick="tChip(this)">🟠 Mostaza</span>
+      <span class="chip" data-g="aji" data-v="ají" onclick="tChip(this)">🌶️ Ají</span>
+      <span class="chip" data-g="golf" data-v="golf" onclick="tChip(this)">🩷 Golf</span>
+    </div></div>
+    <div class="opt-sec" id="oPlancha" style="display:none"><div class="opt-lbl">Preparación</div><div class="chips">
+      <span class="chip on" data-g="plancha" data-v="normal" onclick="tChip(this)">Normal</span>
+      <span class="chip" data-g="plancha" data-v="a la plancha" onclick="tChip(this)">🔥 A la plancha</span>
+    </div></div>
+    <button class="btn-add" onclick="agregarItem()">+ Agregar al pedido</button>
+  </div>
+</div>
+
+<!-- MODAL CAMBIAR MESA -->
+<div class="smodal-bg" id="modalMesa">
+  <div class="smodal">
+    <h3>Seleccionar mesa</h3>
+    <div class="mesa-modal-grid" id="mesaModalGrid"></div>
+    <div class="smodal-btns">
+      <button class="cancel" onclick="cerrarSModal('modalMesa')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO AMBIENTE -->
+<div class="smodal-bg" id="modalAmbiente">
+  <div class="smodal">
+    <h3>Nuevo ambiente</h3>
+    <input type="text" id="nuevoAmbNombre" placeholder="Nombre del ambiente (ej: Terraza)" maxlength="30">
+    <div class="smodal-btns">
+      <button class="cancel" onclick="cerrarSModal('modalAmbiente')">Cancelar</button>
+      <button class="ok" onclick="crearAmbiente()">Crear</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DIVISIÓN -->
+<div class="modal-bg" id="modalDiv">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>👥 Dividir cuenta</h3>
+      <button class="modal-close" onclick="cerrarDiv()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:0.75rem;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Productos a asignar</div>
+      <div class="items-asignables" id="itemsAsignables"></div>
+      <div style="font-size:0.75rem;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin:10px 0 8px;">Personas</div>
+      <div class="div-personas" id="divPersonas"></div>
+      <button class="btn-add-persona" onclick="agregarPersona()">+ Agregar persona</button>
+    </div>
+    <div class="modal-foot">
+      <button onclick="cerrarDiv()" style="width:100%;padding:11px;background:#f5f5f5;border:none;border-radius:9px;font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:800;cursor:pointer;color:#555;">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ÁREA DE IMPRESIÓN -->
+<div id="printArea"></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ MENÚ ══
+const IMGS={
+  jugo:"https://images.unsplash.com/photo-1589733955941-5eeaf752f6dd?w=300&q=75",
+  batido:"https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=300&q=75",
+  extracto:"https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=300&q=75",
+  zumo:"https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=300&q=75",
+  combo:"https://images.unsplash.com/photo-1570197788417-0e82375c9371?w=300&q=75",
+  ensalada:"https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=300&q=75",
+  sandwich:"https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=300&q=75",
+  cafe:"https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300&q=75"
+};
+const MENU={
+  "Jugos":{emoji:"🍹",img:"jugo",custom:true,items:[
+    {n:"Papaya",g:12,m:8},{n:"Surtido",g:12,m:8},{n:"Piña",g:12,m:8},
+    {n:"Melón",g:12,m:8},{n:"Tuna",g:12,m:8},{n:"Uva",g:12,m:8},
+    {n:"Mango",g:14,m:9},{n:"Fresa",g:14,m:9},{n:"Lúcuma",g:14,m:9},
+    {n:"Chirimoya",g:14,m:9},{n:"Guanábana",g:14,m:9},{n:"Ponche de naranja",g:15,m:10}
+  ]},
+  "Batidos":{emoji:"🥛",img:"batido",custom:true,items:[
+    {n:"Fresa",g:16,m:10},{n:"Lúcuma",g:16,m:10},{n:"Guanábana",g:16,m:10},
+    {n:"Chirimoya",g:16,m:10},{n:"Mango",g:16,m:10},{n:"Ponche de malta",g:17,m:null},
+    {n:"Especial",g:15,m:10},{n:"Melón",g:14,m:9},{n:"Plátano",g:11,m:7}
+  ]},
+  "Extractos":{emoji:"🥦",img:"extracto",custom:false,items:[
+    {n:"Rojo · Beterraga-manzana-uva",p:7},{n:"Naranja · Piña-zanahoria-yacón",p:7},
+    {n:"Verde · Espinaca-pepinillo-apio",p:7},{n:"Colesterol / Diabetes",p:7},
+    {n:"Estreñimiento (Yacón)",p:7},{n:"Riñón (Piña-papa)",p:7}
+  ]},
+  "Zumos":{emoji:"🍊",img:"zumo",custom:false,items:[
+    {n:"Naranja",p:7},{n:"Limonada frozen",p:7}
+  ]},
+  "Combinaciones":{emoji:"🍓",img:"combo",custom:true,items:[
+    {n:"Pantera · uva-fresa-piña",g:17,m:12},{n:"Pícara · piña-papaya-naranja",g:17,m:12},
+    {n:"Hawaiana · piña-naranja-melón",g:17,m:12},{n:"Olímpico · mango-lúcuma-fresa",g:17,m:12},
+    {n:"Platónico · plátano-fresa-naranja",g:17,m:12},{n:"Roja tropical",g:17,m:12},
+    {n:"Delicia de mango",g:17,m:12},{n:"Papaya c/ naranja",g:17,m:12},{n:"Piña c/ naranja",g:17,m:12}
+  ]},
+  "Ensaladas":{emoji:"🍈",img:"ensalada",custom:false,items:[
+    {n:"Ensalada de frutas variadas",p:10},{n:"Ensalada de frutas con helado",p:13}
+  ]},
+  "Comida":{emoji:"🥪",img:"sandwich",custom:false,items:[
+    {n:"Pan c/ jamón del país",p:8.5},
+    {n:"Pan c/ pollo deshilachado",p:9,cremas:true},
+    {n:"Pan c/ pechuga de pollo",p:7,cremas:true},
+    {n:"Pan c/ chorizo",p:3.5},{n:"Pan c/ huevo frito",p:3.5},{n:"Pan c/ queso",p:3},
+    {n:"Pan c/ salchicha huachana",p:9.5},
+    {n:"Sándwich clásico triple",p:7,plancha:true},
+    {n:"Sándwich clásico cuádruple",p:8,plancha:true},
+    {n:"Empanada de pollo",p:4.5},{n:"Empanada de carne",p:4.5},
+    {n:"Keke marmoleado/naranja",p:2},{n:"Keke de piña",p:2.5}
+  ]},
+  "Calientes":{emoji:"☕",img:"cafe",custom:false,items:[
+    {n:"Café pasado",p:3},{n:"Café con leche",p:5},
+    {n:"Manzanilla",p:2.5},{n:"Anís",p:2.5},{n:"Té verde",p:3}
+  ]}
+};
+
+// ══ ESTADO ══
+let catActiva="Jugos",prodSel=null,tamSel="grande";
+let pedido=[],mesaActual=null,ambienteActual=null,tipoActual="mesa",pagoActual="efectivo";
+let ambientes=[],mesas=[],ambienteTabActivo=1,busqueda="";
+let personas=[],pedidoIdActual=null;
+
+// ══ INIT ══
+window.onload=()=>{
+  renderCats();
+  const hoy=new Date().toISOString().split('T')[0];
+  document.getElementById('fIni').value=hoy;
+  document.getElementById('fFin').value=hoy;
+  cargarAmbientes();
+  cargarTotalHoy();
+  setInterval(()=>{
+    document.getElementById('reloj').textContent=new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
+  },1000);
+  setInterval(cargarTotalHoy,30000);
+};
+
+async function cargarTotalHoy(){
+  try{
+    const r=await fetch('/api/ventas/hoy');
+    const d=await r.json();
+    document.getElementById('totalHoy').textContent=`S/ ${d.total.toFixed(2)} hoy`;
+  }catch(e){}
+}
+
+// ══ NAVEGACIÓN ══
+function irVista(v){
+  // Hide all
+  document.getElementById('vMesas').style.display='none';
+  document.getElementById('vPOS').style.display='none';
+  document.getElementById('vComandas').style.display='none';
+  document.getElementById('vReporte').style.display='none';
+  // Show target
+  if(v==='mesas')   { document.getElementById('vMesas').style.display='flex'; }
+  if(v==='pos')     { document.getElementById('vPOS').style.display='flex'; }
+  if(v==='comandas'){ document.getElementById('vComandas').style.display='flex'; }
+  if(v==='reporte') { document.getElementById('vReporte').style.display='flex'; }
+  document.querySelectorAll('.tnav').forEach((b,i)=>{
+    b.classList.toggle('active',['mesas','pos','comandas','reporte'][i]===v);
+  });
+  if(v==='mesas') cargarMesas(ambienteTabActivo);
+  if(v==='comandas') cargarComandas();
+}
+
+// ══ AMBIENTES ══
+async function cargarAmbientes(){
+  const r=await fetch('/api/ambientes');
+  ambientes=await r.json();
+  renderAmbientesTabs();
+  cargarMesas(ambienteTabActivo);
+}
+
+function renderAmbientesTabs(){
+  const wrap=document.getElementById('ambientesTabs');
+  wrap.innerHTML='';
+  ambientes.forEach(a=>{
+    const b=document.createElement('button');
+    b.className='amb-tab'+(a.id===ambienteTabActivo?' active':'');
+    b.textContent=a.nombre;
+    b.onclick=()=>{ambienteTabActivo=a.id;renderAmbientesTabs();cargarMesas(a.id);};
+    wrap.appendChild(b);
+  });
+}
+
+function abrirNuevoAmbiente(){ document.getElementById('nuevoAmbNombre').value=''; abrirSModal('modalAmbiente'); }
+async function crearAmbiente(){
+  const nom=document.getElementById('nuevoAmbNombre').value.trim();
+  if(!nom)return;
+  await fetch('/api/ambientes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre:nom})});
+  cerrarSModal('modalAmbiente');
+  await cargarAmbientes();
+  mostrarToast(`✅ Ambiente "${nom}" creado`,'ok');
+}
+
+// ══ MESAS ══
+async function cargarMesas(ambId=1){
+  ambienteTabActivo=ambId;
+  const r=await fetch(`/api/mesas?ambiente_id=${ambId}`);
+  mesas=await r.json();
+  // Cargar pedidos activos para mostrar totales
+  const rp=await fetch('/api/pedidos/activos');
+  const pedidosActivos=await rp.json();
+  renderMesas(pedidosActivos);
+}
+
+function renderMesas(pedidosActivos=[]){
+  const grid=document.getElementById('mesasGrid');
+  grid.innerHTML='';
+  const ambNom=ambientes.find(a=>a.id===ambienteTabActivo)?.nombre||'';
+  mesas.forEach(m=>{
+    const pedMesa=pedidosActivos.filter(p=>p.mesa==m.numero&&p.ambiente===ambNom);
+    const totalMesa=pedMesa.reduce((s,p)=>s+(p.total||0),0);
+    const d=document.createElement('div');
+    let est=m.estado;
+    if(pedMesa.length>0) est='pendiente';
+    d.className='mesa-card '+est;
+    d.innerHTML=`<div class="mesa-icon">${est==='libre'?'🪑':est==='ocupada'?'🍽️':'📋'}</div>
+      <div class="mesa-num">Mesa ${m.numero}</div>
+      <div class="mesa-tag">${est==='libre'?'Libre':est==='ocupada'?'Ocupada':'Pedido'}</div>
+      ${totalMesa>0?`<div class="mesa-total">S/ ${totalMesa.toFixed(2)}</div>`:''}`;
+    d.onclick=()=>selMesa(m,ambNom);
+    grid.appendChild(d);
+  });
+}
+
+function selMesa(m,ambNom){
+  mesaActual=m.numero; ambienteActual=ambNom; tipoActual='mesa';
+  document.getElementById('mesaLabel').textContent=`Mesa ${m.numero} · ${ambNom}`;
+  document.getElementById('posMesaBadge').textContent=`Mesa ${m.numero}`;
+  document.getElementById('posMesaBadge').className='pos-mesa-badge';
+  document.getElementById('posAmbienteBadge').textContent=ambNom;
+  fetch(`/api/mesa/${m.id}/estado`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({estado:'ocupada'})});
+  irVista('pos');
+}
+
+function iniciarParaLlevar(){
+  mesaActual=null; ambienteActual=null; tipoActual='para_llevar';
+  document.getElementById('mesaLabel').textContent='Para llevar';
+  document.getElementById('posMesaBadge').textContent='🥤 Para llevar';
+  document.getElementById('posMesaBadge').className='pos-mesa-badge para-llevar';
+  document.getElementById('posAmbienteBadge').textContent='';
+  irVista('pos');
+}
+
+function abrirModalMesa(){
+  const grid=document.getElementById('mesaModalGrid');
+  grid.innerHTML='';
+  mesas.forEach(m=>{
+    const b=document.createElement('button');
+    b.className='mmesa'+(m.estado==='ocupada'?' ocupada':'');
+    b.textContent=m.numero;
+    const ambNom=ambientes.find(a=>a.id===ambienteTabActivo)?.nombre||'';
+    b.onclick=()=>{ selMesa(m,ambNom); cerrarSModal('modalMesa'); };
+    grid.appendChild(b);
+  });
+  abrirSModal('modalMesa');
+}
+
+// ══ CATEGORÍAS ══
+function renderCats(){
+  const bar=document.getElementById('catsBar');
+  bar.innerHTML='';
+  Object.keys(MENU).forEach(cat=>{
+    const b=document.createElement('button');
+    b.className='cat-btn'+(cat===catActiva?' active':'');
+    b.innerHTML=MENU[cat].emoji+' '+cat;
+    b.onclick=()=>{catActiva=cat;busqueda='';document.getElementById('searchInp').value='';renderCats();renderProds();};
+    bar.appendChild(b);
+  });
+}
+
+// ══ PRODUCTOS ══
+function filtrar(){ busqueda=document.getElementById('searchInp').value.toLowerCase(); renderProds(); }
+
+function renderProds(){
+  const g=document.getElementById('prodGrid'); g.innerHTML='';
+  let items=[];
+  if(busqueda){
+    Object.entries(MENU).forEach(([cat,data])=>{
+      data.items.forEach(item=>{
+        if(item.n.toLowerCase().includes(busqueda))
+          items.push({...item,cat,emoji:data.emoji,img:data.img,custom:data.custom});
+      });
+    });
+  } else {
+    const cat=MENU[catActiva];
+    items=cat.items.map(item=>({...item,cat:catActiva,emoji:cat.emoji,img:cat.img,custom:cat.custom}));
+  }
+  items.forEach(item=>{
+    const d=document.createElement('div'); d.className='pcard';
+    const precio=item.p?`S/ ${item.p.toFixed(2)}`:`S/ ${item.m||item.g}`;
+    const imgUrl=IMGS[item.img]||IMGS.jugo;
+    d.innerHTML=`<img class="pcard-img" src="${imgUrl}" loading="lazy"
+        onerror="this.style.display='none';this.nextSibling.style.display='flex'">
+      <div class="pcard-emoji" style="display:none">${item.emoji}</div>
+      <div class="pcard-body">
+        <div class="pcard-name">${item.n}</div>
+        <span class="pcard-price">${precio}${item.g&&item.m?' — S/'+item.g:''}</span>
+      </div>`;
+    d.onclick=()=>abrirSheet(item);
+    g.appendChild(d);
+  });
+}
+
+// ══ SHEET ══
+function abrirSheet(item){
+  prodSel=item;
+  const imgUrl=IMGS[item.img]||IMGS.jugo;
+  document.getElementById('shImg').innerHTML=`<img src="${imgUrl}" onerror="this.parentElement.textContent='${item.emoji}'">`;
+  document.getElementById('shName').textContent=item.n;
+  document.getElementById('shCat').textContent=item.cat||catActiva;
+  const opts=['oTam','oTemp','oPulpa','oAzucar','oEspuma'];
+  if(item.custom){
+    opts.forEach(id=>document.getElementById(id).style.display='block');
+    const ct=document.getElementById('cTam'); ct.innerHTML='';
+    if(item.g) ct.appendChild(mkChip('tamano','grande',`Grande S/${item.g}`,tamSel==='grande'));
+    if(item.m) ct.appendChild(mkChip('tamano','mediano',`Mediano S/${item.m}`,tamSel==='mediano'&&!!item.m));
+    if(!item.m) tamSel='grande';
+  } else { opts.forEach(id=>document.getElementById(id).style.display='none'); }
+  document.getElementById('oCremas').style.display=item.cremas?'block':'none';
+  document.getElementById('oPlancha').style.display=item.plancha?'block':'none';
+  if(item.cremas){ ['mayo','ketch','most','aji','golf'].forEach(g=>{ document.querySelectorAll(`.chip[data-g="${g}"]`).forEach(c=>c.classList.remove('on')); }); }
+  if(item.plancha){ document.querySelectorAll('.chip[data-g="plancha"]').forEach(c=>c.classList.remove('on')); document.querySelector('.chip[data-g="plancha"][data-v="normal"]').classList.add('on'); }
+  updShPrice();
+  document.getElementById('shOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function mkChip(g,v,label,on){
+  const s=document.createElement('span');
+  s.className='chip'+(on?' on':'');
+  s.dataset.g=g; s.dataset.v=v; s.textContent=label;
+  s.onclick=()=>tChip(s); return s;
+}
+function cerrarSheet(e){ if(e&&e.target!==document.getElementById('shOverlay'))return; document.getElementById('shOverlay').classList.remove('open'); document.body.style.overflow=''; }
+function tChip(el){ document.querySelectorAll(`.chip[data-g="${el.dataset.g}"]`).forEach(c=>c.classList.remove('on')); el.classList.add('on'); if(el.dataset.g==='tamano')tamSel=el.dataset.v; updShPrice(); }
+function gChip(g){ const e=document.querySelector(`.chip[data-g="${g}"].on`); return e?e.dataset.v:''; }
+function updShPrice(){ if(!prodSel)return; const p=prodSel.custom?(tamSel==='grande'?prodSel.g:(prodSel.m||prodSel.g)):prodSel.p; document.getElementById('shPrice').textContent=`S/ ${p.toFixed(2)}`; }
+
+function agregarItem(){
+  if(!prodSel)return;
+  let precio,tam='',personal='';
+  if(prodSel.custom){
+    precio=tamSel==='grande'?prodSel.g:(prodSel.m||prodSel.g);
+    tam=tamSel==='grande'?'Grande':'Mediano';
+    const ps=[];
+    const t=gChip('temp'); if(t&&t!=='al tiempo')ps.push(t);
+    const p=gChip('pulpa'); if(p&&p!=='con pulpa')ps.push(p);
+    const a=gChip('azucar'); if(a&&a!=='normal')ps.push(a);
+    const e=gChip('espuma'); if(e&&e!=='normal')ps.push(e);
+    personal=ps.join(' · ');
+  } else {
+    precio=prodSel.p;
+    if(prodSel.cremas){
+      const cremas=[]; ['mayo','ketch','most','aji','golf'].forEach(g=>{ const c=gChip(g); if(c)cremas.push(c); });
+      if(cremas.length)personal=cremas.join(', ');
+    }
+    if(prodSel.plancha){ const pl=gChip('plancha'); if(pl&&pl!=='normal')personal=(personal?personal+' · ':'')+pl; }
+  }
+  const cat=prodSel.cat||catActiva;
+  const emoji=prodSel.emoji||MENU[cat]?.emoji||'🍹';
+  const existe=pedido.find(i=>i.nombre===prodSel.n&&i.tam===tam&&i.personal===personal);
+  if(existe){ existe.qty++; }
+  else { pedido.push({cat,emoji,nombre:prodSel.n,tam,precio,personal,qty:1}); }
+  document.getElementById('shOverlay').classList.remove('open');
+  document.body.style.overflow='';
+  renderPedido();
+  mostrarToast(`✅ ${prodSel.n} agregado`,'ok');
+}
+
+// ══ PEDIDO ══
+function renderPedido(){
+  const lista=document.getElementById('pedLista');
+  const total=pedido.reduce((s,i)=>s+(i.precio*i.qty),0);
+  document.getElementById('totalVal').textContent=`S/ ${total.toFixed(2)}`;
+  document.getElementById('btnCob').disabled=pedido.length===0;
+  if(pedido.length===0){ lista.innerHTML='<div class="ped-empty"><div class="ei">🥤</div><p>Selecciona productos</p></div>'; return; }
+  lista.innerHTML=pedido.map((item,i)=>`
+    <div class="ped-item">
+      <div class="pi-em">${item.emoji}</div>
+      <div class="pi-inf">
+        <div class="pi-nom">${item.nombre}${item.tam?` <span style="font-weight:600;color:#bbb;font-size:0.67rem">(${item.tam})</span>`:''}</div>
+        ${item.personal?`<div class="pi-det">📝 ${item.personal}</div>`:''}
+      </div>
+      <div class="pi-r">
+        <span class="pi-pre">S/${(item.precio*item.qty).toFixed(2)}</span>
+        <div class="pi-qty">
+          <button class="qb m" onclick="chQty(${i},-1)">−</button>
+          <span class="qn">${item.qty}</span>
+          <button class="qb p" onclick="chQty(${i},1)">+</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function chQty(i,d){ pedido[i].qty+=d; if(pedido[i].qty<=0)pedido.splice(i,1); renderPedido(); }
+function limpiarPedido(){ pedido=[]; renderPedido(); }
+function selPago(el){ document.querySelectorAll('.pago-op').forEach(e=>e.classList.remove('on')); el.classList.add('on'); pagoActual=el.dataset.v; }
+
+// ══ COBRAR ══
+async function cobrar(){
+  if(!pedido.length)return;
+  const btn=document.getElementById('btnCob');
+  btn.disabled=true; btn.textContent='Registrando...';
+  try{
+    const items=pedido.map(item=>({
+      categoria:item.cat,producto:item.nombre,tamano:item.tam,
+      precio:item.precio,personalizado:item.personal,qty:item.qty
+    }));
+    const r=await fetch('/api/pedido',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({mesa:mesaActual||'',ambiente:ambienteActual||'',tipo:tipoActual,metodo_pago:pagoActual,items})});
+    const d=await r.json();
+    await fetch(`/api/pedido/${d.pedido_id}/cerrar`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({metodo_pago:pagoActual})});
+    const total=pedido.reduce((s,i)=>s+(i.precio*i.qty),0);
+    imprimirNotaVenta(total);
+    mostrarToast(`💚 Venta S/${total.toFixed(2)} registrada`,'ok');
+    pedido=[]; renderPedido(); mesaActual=null;
+    await cargarTotalHoy();
+    irVista('mesas');
+  }catch(e){ mostrarToast('❌ Error','err'); }
+  btn.disabled=false; btn.textContent='✅ Finalizar venta';
+}
+
+// ══ ENVIAR COMANDA ══
+async function enviarComanda(){
+  if(!pedido.length){ mostrarToast('Agrega productos primero','err'); return; }
+  const items=pedido.map(item=>({
+    categoria:item.cat,producto:item.nombre,tamano:item.tam,
+    precio:item.precio,personalizado:item.personal,qty:item.qty
+  }));
+  const r=await fetch('/api/pedido',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({mesa:mesaActual||'',ambiente:ambienteActual||'',tipo:tipoActual,metodo_pago:pagoActual,items})});
+  const d=await r.json();
+  pedidoIdActual=d.pedido_id;
+  mostrarToast('👨‍🍳 Comanda enviada a cocina','ok');
+  cargarComandas();
+}
+
+// ══ COMANDAS ══
+async function cargarComandas(){
+  try{
+    const r=await fetch('/api/pedidos/activos');
+    const pedidos=await r.json();
+    const prep=[],listo=[],entregado=[];
+    pedidos.forEach(p=>{
+      p.items.forEach(item=>{
+        const card={pedido_id:p.id,item_id:item.id,mesa:p.mesa||'Para llevar',
+          ambiente:p.ambiente,producto:item.producto,tamano:item.tamano,
+          personalizado:item.personalizado,qty:item.qty,estado:item.estado};
+        if(item.estado==='preparando')prep.push(card);
+        else if(item.estado==='listo')listo.push(card);
+        else entregado.push(card);
+      });
+    });
+    renderCol('col-prep','cnt-prep',prep,'prep');
+    renderCol('col-listo','cnt-listo',listo,'listo');
+    renderCol('col-entregado','cnt-entregado',entregado,'entregado');
+  }catch(e){}
+}
+
+function renderCol(colId,cntId,items,tipo){
+  document.getElementById(cntId).textContent=items.length;
+  const col=document.getElementById(colId); col.innerHTML='';
+  items.forEach(item=>{
+    const d=document.createElement('div'); d.className='comanda-card';
+    d.innerHTML=`<div class="cc-mesa">Mesa ${item.mesa}${item.ambiente?' · '+item.ambiente:''}</div>
+      <div class="cc-prod"><span class="cc-qty">${item.qty}x</span>${item.producto}${item.tamano?' ('+item.tamano+')':''}</div>
+      ${item.personalizado?`<div class="cc-det">📝 ${item.personalizado}</div>`:''}
+      <div class="cc-btns">
+        ${tipo==='prep'?`<button class="cc-btn listo" onclick="updItem(${item.pedido_id},${item.item_id},'listo')">✓ Listo</button>`:''}
+        ${tipo==='listo'?`<button class="cc-btn entregar" onclick="updItem(${item.pedido_id},${item.item_id},'entregado')">→ Entregar</button>`:''}
+      </div>`;
+    col.appendChild(d);
+  });
+}
+
+async function updItem(pedId,itemId,estado){
+  await fetch(`/api/pedido/${pedId}/item/${itemId}/estado`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({estado})});
+  cargarComandas();
+}
+
+// ══ DIVISIÓN ══
+function abrirDivision(){
+  if(!pedido.length){mostrarToast('No hay productos','err');return;}
+  personas=[{nombre:'Persona 1',items:[]}];
+  renderDivision();
+  document.getElementById('modalDiv').classList.add('open');
+}
+function cerrarDiv(){ document.getElementById('modalDiv').classList.remove('open'); }
+function agregarPersona(){ personas.push({nombre:`Persona ${personas.length+1}`,items:[]}); renderDivision(); }
+
+function renderDivision(){
+  // Items asignables
+  const ia=document.getElementById('itemsAsignables'); ia.innerHTML='';
+  pedido.forEach((item,i)=>{
+    const d=document.createElement('div'); d.className='item-asign';
+    d.innerHTML=`<span>${item.qty}x ${item.nombre}${item.tam?` (${item.tam})`:''} — S/${(item.precio*item.qty).toFixed(2)}</span>
+      <select onchange="asignarItem(${i},this.value)" style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:6px;padding:3px 6px;font-family:'Nunito',sans-serif;font-size:0.72rem;font-weight:800;color:#1a5c1a;">
+        <option value="">Asignar...</option>
+        ${personas.map((p,pi)=>`<option value="${pi}">${p.nombre}</option>`).join('')}
+      </select>`;
+    ia.appendChild(d);
+  });
+  // Personas
+  const dp=document.getElementById('divPersonas'); dp.innerHTML='';
+  personas.forEach((p,pi)=>{
+    const total=p.items.reduce((s,ii)=>s+(pedido[ii]?pedido[ii].precio*pedido[ii].qty:0),0);
+    const d=document.createElement('div'); d.className='persona-row';
+    d.innerHTML=`<div class="persona-name">
+        <input value="${p.nombre}" onchange="personas[${pi}].nombre=this.value;renderDivision()" style="background:none;border:none;font-family:'Nunito',sans-serif;font-size:0.8rem;font-weight:900;color:#0d2b0d;width:120px;">
+        <button onclick="imprimirPersona(${pi})" style="background:#e8f5e9;border:none;border-radius:6px;padding:3px 8px;font-size:0.7rem;font-weight:800;color:#1a5c1a;cursor:pointer;">🖨️ Imprimir</button>
+      </div>
+      <div class="persona-items">
+        ${p.items.map(ii=>pedido[ii]?`<div class="persona-item-row"><span>${pedido[ii].qty}x ${pedido[ii].nombre}</span><span>S/${(pedido[ii].precio*pedido[ii].qty).toFixed(2)}</span></div>`:'').join('')}
+      </div>
+      <div class="persona-total">Total: S/ ${total.toFixed(2)}</div>`;
+    dp.appendChild(d);
+  });
+}
+
+function asignarItem(itemIdx,personaIdx){
+  if(personaIdx==='')return;
+  const pi=parseInt(personaIdx);
+  personas.forEach(p=>{ p.items=p.items.filter(i=>i!==itemIdx); });
+  personas[pi].items.push(itemIdx);
+  renderDivision();
+}
+
+function imprimirPersona(pi){
+  const p=personas[pi];
+  const items=p.items.map(ii=>pedido[ii]).filter(Boolean);
+  const total=items.reduce((s,i)=>s+(i.precio*i.qty),0);
+  const html=`<div style="font-family:monospace;font-size:11px;width:280px">
+    <div style="text-align:center;font-weight:bold;font-size:13px">🍊 JUGUERÍA PALACIOS</div>
+    <div style="text-align:center;font-size:10px;margin-bottom:8px">${new Date().toLocaleString('es-PE')}</div>
+    <div style="border-top:1px dashed #000;margin:4px 0"></div>
+    <div style="font-weight:bold">${p.nombre}</div>
+    <div style="border-top:1px dashed #000;margin:4px 0"></div>
+    ${items.map(i=>`<div style="display:flex;justify-content:space-between"><span>${i.qty}x ${i.nombre}${i.tam?' ('+i.tam+')':''}</span><span>S/${(i.precio*i.qty).toFixed(2)}</span></div>`).join('')}
+    <div style="border-top:1px dashed #000;margin:4px 0"></div>
+    <div style="display:flex;justify-content:space-between;font-weight:bold;font-size:12px"><span>TOTAL</span><span>S/ ${total.toFixed(2)}</span></div>
+  </div>`;
+  document.getElementById('printArea').innerHTML=html;
+  window.print();
+}
+
+// ══ IMPRESIÓN ══
+function imprimirPreCuenta(){
+  if(!pedido.length)return;
+  const total=pedido.reduce((s,i)=>s+(i.precio*i.qty),0);
+  const html=`<div style="font-family:monospace;font-size:11px;width:280px">
+    <div style="text-align:center;font-weight:bold;font-size:13px">🍊 JUGUERÍA PALACIOS</div>
+    <div style="text-align:center;font-size:10px">Calidad y nutrición desde 1976</div>
+    <div style="text-align:center;font-size:10px;margin-bottom:6px">${new Date().toLocaleString('es-PE')}</div>
+    <div style="border-top:1px dashed #000;margin:4px 0"></div>
+    <div style="font-weight:bold">PRE-CUENTA${mesaActual?' — Mesa '+mesaActual:' — Para llevar'}</div>
+    <div style="border-top:1px dashed #000;margin:4px 0"></div>
+    ${pedido.map(i=>`<div style="display:flex;justify-content:space-between">
+      <span>${i.qty}x ${i.nombre}${i.tam?' ('+i.tam+')':''}</span>
+      <span>S/${(i.precio*i.qty).toFixed(2)}</span></div>
+      ${i.personal?`<div style="font-size:9px;color:#666;padding-left:12px">→ ${i.personal}</div>`:''}`).join('')}
+    <div style="border-top:1px dashed #000;margin:4px 0"></div>
+    <div style="display:flex;justify-content:space-between;font-weight:bold;font-size:12px"><span>TOTAL</span><span>S/ ${total.toFixed(2)}</span></div>
+    <div style="text-align:center;font-size:9px;margin-top:8px">* Este no es un comprobante de pago *</div>
+  </div>`;
+  document.getElementById('printArea').innerHTML=html;
+  window.print();
+}
+
+function imprimirNotaVenta(total){
+  const html=`<div style="font-family:monospace;font-size:11px;width:280px">
+    <div style="text-align:center;font-weight:bold;font-size:13px">🍊 JUGUERÍA PALACIOS</div>
+    <div style="text-align:center;font-size:10px">Calidad y nutrición desde 1976</div>
+    <div style="text-align:center;font-size:10px;margin-bottom:6px">${new Date().toLocaleString('es-PE')}</div>
+    <div style="border-top:1px dashed #000;margin:4px 0"></div>
+    <div style="font-weight:bold">NOTA DE VENTA${mesaActual?' — Mesa '+mesaActual:' — Para llevar'}</div>
+    <div style="font-size:10px">Pago: ${pagoActual.toUpperCase()}</div>
+    <div style="border-top:1px dashed #000;margin:4px 0"></div>
+    ${pedido.map(i=>`<div style="display:flex;justify-content:space-between">
+      <span>${i.qty}x ${i.nombre}${i.tam?' ('+i.tam+')':''}</span>
+      <span>S/${(i.precio*i.qty).toFixed(2)}</span></div>
+      ${i.personal?`<div style="font-size:9px;color:#666;padding-left:12px">→ ${i.personal}</div>`:''}`).join('')}
+    <div style="border-top:1px dashed #000;margin:4px 0"></div>
+    <div style="display:flex;justify-content:space-between;font-weight:bold;font-size:12px"><span>TOTAL</span><span>S/ ${total.toFixed(2)}</span></div>
+    <div style="text-align:center;margin-top:8px">¡Gracias por su visita! 🍊</div>
+  </div>`;
+  document.getElementById('printArea').innerHTML=html;
+  window.print();
+}
+
+// ══ MODALES ══
+function abrirSModal(id){ document.getElementById(id).classList.add('open'); }
+function cerrarSModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// ══ REPORTES ══
+function setAtajo(a){
+  const hoy=new Date(),fmt=d=>d.toISOString().split('T')[0];
+  let ini,fin=fmt(hoy);
+  if(a==='hoy')ini=fmt(hoy);
+  else if(a==='ayer'){const ay=new Date(hoy);ay.setDate(ay.getDate()-1);ini=fin=fmt(ay);}
+  else if(a==='semana'){const s=new Date(hoy);s.setDate(s.getDate()-6);ini=fmt(s);}
+  else if(a==='mes')ini=fmt(new Date(hoy.getFullYear(),hoy.getMonth(),1));
+  document.getElementById('fIni').value=ini;
+  document.getElementById('fFin').value=fin;
+  document.querySelectorAll('.atajo').forEach(b=>b.classList.remove('on'));
+  document.getElementById('at-'+a).classList.add('on');
+}
+function descargarReporte(){
+  const ini=document.getElementById('fIni').value,fin=document.getElementById('fFin').value;
+  if(!ini||!fin){mostrarToast('❌ Elige las fechas','err');return;}
+  window.location.href=`/api/reporte?inicio=${ini}&fin=${fin}`;
+  mostrarToast('📊 Descargando Excel...');
+}
+
+// ══ TOAST ══
+function mostrarToast(msg,tipo=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+tipo; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+</script>
+</body>
+</html>
