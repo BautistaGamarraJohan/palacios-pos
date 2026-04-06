@@ -239,20 +239,30 @@ body{font-family:'Nunito',sans-serif;background:#f0f2f5;color:#1c1c1e;height:100
 </head>
 <body>
 
+<!-- PANTALLA SELECCIÓN ROL -->
+<div id="rolScreen" style="position:fixed;inset:0;background:#0d2b0d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;z-index:9999;">
+  <div style="font-family:'Nunito',sans-serif;font-size:2rem;font-weight:900;color:#f5c518;">🍊 Juguería Palacios</div>
+  <div style="font-family:'Nunito',sans-serif;font-size:1rem;color:rgba(255,255,255,0.5);margin-bottom:8px;">¿Quién eres?</div>
+  <button onclick="selRol('mozo')" style="background:#f4720b;border:none;border-radius:16px;padding:20px 48px;font-family:'Nunito',sans-serif;font-size:1.2rem;font-weight:900;color:#fff;cursor:pointer;width:260px;transition:all 0.2s;">🧾 Mozo</button>
+  <button onclick="selRol('cocina')" style="background:#1a5c1a;border:none;border-radius:16px;padding:20px 48px;font-family:'Nunito',sans-serif;font-size:1.2rem;font-weight:900;color:#fff;cursor:pointer;width:260px;transition:all 0.2s;">👨‍🍳 Cocina</button>
+  <button onclick="selRol('admin')" style="background:rgba(255,255,255,0.1);border:none;border-radius:16px;padding:20px 48px;font-family:'Nunito',sans-serif;font-size:1.2rem;font-weight:900;color:rgba(255,255,255,0.7);cursor:pointer;width:260px;transition:all 0.2s;">⚙️ Administrador</button>
+</div>
+
 <!-- TOPBAR -->
-<div class="topbar">
+<div class="topbar" id="topbar" style="display:none;">
   <div class="brand">🍊 Palacios</div>
-  <button class="tnav active" onclick="irVista('mesas')">🍽️ Mesas</button>
-  <button class="tnav" onclick="irVista('pos')">🧾 POS</button>
-  <button class="tnav" onclick="irVista('comandas')">👨‍🍳 Comandas</button>
-  <button class="tnav" onclick="irVista('reporte')">📊 Reportes</button>
+  <button class="tnav active" id="tnav-mesas" onclick="irVista('mesas')">🍽️ Mesas</button>
+  <button class="tnav" id="tnav-pos" onclick="irVista('pos')">🧾 POS</button>
+  <button class="tnav" id="tnav-comandas" onclick="irVista('comandas')">👨‍🍳 Comandas</button>
+  <button class="tnav" id="tnav-reporte" onclick="irVista('reporte')">📊 Reportes</button>
   <div class="topbar-right">
     <div class="total-hoy-badge" id="totalHoy">S/ 0.00 hoy</div>
     <div class="topbar-time" id="reloj">--:--</div>
+    <button onclick="document.getElementById('rolScreen').style.display='flex'" style="background:rgba(255,255,255,0.1);border:none;border-radius:8px;padding:5px 10px;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.75rem;font-family:'Nunito',sans-serif;font-weight:700;">Cambiar rol</button>
   </div>
 </div>
 
-<div class="main">
+<div class="main" id="main" style="display:none;">
 
 <!-- ════ MESAS ════ -->
 <div id="vMesas" style="display:flex;">
@@ -531,8 +541,6 @@ window.onload=()=>{
   const hoy=new Date().toISOString().split('T')[0];
   document.getElementById('fIni').value=hoy;
   document.getElementById('fFin').value=hoy;
-  cargarAmbientes();
-  cargarTotalHoy();
   setInterval(()=>{
     document.getElementById('reloj').textContent=new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
   },1000);
@@ -547,6 +555,38 @@ async function cargarTotalHoy(){
     const d=await r.json();
     document.getElementById('totalHoy').textContent=`S/ ${d.total.toFixed(2)} hoy`;
   }catch(e){}
+}
+
+// ══ ROL ══
+let rolActual = null;
+function selRol(rol) {
+  rolActual = rol;
+  document.getElementById('rolScreen').style.display = 'none';
+  document.getElementById('topbar').style.display = 'flex';
+  document.getElementById('main').style.display = 'flex';
+  cargarAmbientes();
+  cargarTotalHoy();
+
+  // Mostrar/ocultar tabs según rol
+  if(rol === 'mozo') {
+    document.getElementById('tnav-mesas').style.display = 'block';
+    document.getElementById('tnav-pos').style.display = 'block';
+    document.getElementById('tnav-comandas').style.display = 'none';
+    document.getElementById('tnav-reporte').style.display = 'none';
+    irVista('mesas');
+  } else if(rol === 'cocina') {
+    document.getElementById('tnav-mesas').style.display = 'none';
+    document.getElementById('tnav-pos').style.display = 'none';
+    document.getElementById('tnav-comandas').style.display = 'block';
+    document.getElementById('tnav-reporte').style.display = 'none';
+    irVista('comandas');
+  } else { // admin
+    document.getElementById('tnav-mesas').style.display = 'block';
+    document.getElementById('tnav-pos').style.display = 'block';
+    document.getElementById('tnav-comandas').style.display = 'block';
+    document.getElementById('tnav-reporte').style.display = 'block';
+    irVista('mesas');
+  }
 }
 
 // ══ NAVEGACIÓN ══
