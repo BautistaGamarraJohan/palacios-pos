@@ -537,6 +537,8 @@ window.onload=()=>{
     document.getElementById('reloj').textContent=new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
   },1000);
   setInterval(cargarTotalHoy,30000);
+  setInterval(()=>{ if(document.getElementById('vComandas').style.display!=='none') cargarComandas(); },10000);
+  setInterval(()=>{ if(document.getElementById('vMesas').style.display!=='none') cargarMesas(ambienteTabActivo); },10000);
 };
 
 async function cargarTotalHoy(){
